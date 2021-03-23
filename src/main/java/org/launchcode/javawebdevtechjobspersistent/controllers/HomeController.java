@@ -2,6 +2,7 @@ package org.launchcode.javawebdevtechjobspersistent.controllers;
 
 import org.launchcode.javawebdevtechjobspersistent.models.Employer;
 import org.launchcode.javawebdevtechjobspersistent.models.Job;
+import org.launchcode.javawebdevtechjobspersistent.models.Skill;
 import org.launchcode.javawebdevtechjobspersistent.models.data.EmployerRepository;
 import org.launchcode.javawebdevtechjobspersistent.models.data.JobRepository;
 import org.launchcode.javawebdevtechjobspersistent.models.data.SkillRepository;
@@ -34,6 +35,7 @@ public class HomeController {
     public String index(Model model) {
 
         model.addAttribute("title", "My Jobs");
+        model.addAttribute("jobs", jobRepository.findAll());
 
         return "index";
     }
@@ -50,12 +52,16 @@ public class HomeController {
     @PostMapping("add")
     public String processAddJobForm(@ModelAttribute @Valid Job newJob,
                                        Errors errors, Model model, @RequestParam(required = true) int employerId, @RequestParam List<Integer> skills) {
+
         if (errors.hasErrors()) {
             model.addAttribute("title", "Add Job");
+            System.out.println("Print Something");
             return "add";
         } else {
             Employer employer = employerRepository.findById(employerId).orElse(new Employer());
             newJob.setEmployer(employer);
+            List<Skill> skillObjs = (List<Skill>) skillRepository.findAllById(skills);
+            newJob.setSkills(skillObjs);
         }
             jobRepository.save(newJob);
 
@@ -64,7 +70,13 @@ public class HomeController {
 
     @GetMapping("view/{jobId}")
     public String displayViewJob(Model model, @PathVariable int jobId) {
-
+        Optional<Job> result = jobRepository.findById(jobId);
+        if(result.isPresent()) {
+            Job job = result.get();
+            model.addAttribute("job", job);
+        } else {
+            return"redirect: ";
+        }
         return "view";
     }
 
