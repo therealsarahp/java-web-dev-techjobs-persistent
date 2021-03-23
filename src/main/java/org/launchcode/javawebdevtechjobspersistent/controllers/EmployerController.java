@@ -42,10 +42,11 @@ public class EmployerController {
         if (result.isPresent()) {
             Employer employer = result.get();
             model.addAttribute("employer", employer);
+            return "employers/view";
         } else {
-            return "employers/index";
+            return "redirect../";
         }
-        return "redirect:";
+
     }
 
     @GetMapping
